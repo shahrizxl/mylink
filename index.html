@@ -1,43 +1,81 @@
 <!doctype html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Reset Password</title>
-    <style>
-      body { font-family: system-ui; max-width: 520px; margin: 60px auto; padding: 16px; text-align: center; }
-      button { padding: 12px 18px; font-size: 16px; cursor: pointer; }
-      .small { margin-top: 14px; font-size: 13px; opacity: .7; word-break: break-all; }
-    </style>
-  </head>
-  <body>
-    <h2>Opening SmartBudget…</h2>
-    <p>If the app didn’t open automatically, tap the button below.</p>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reset Password</title>
 
-    <button id="openBtn">Open the app</button>
+  <style>
+    body {
+      font-family: system-ui;
+      max-width: 520px;
+      margin: 60px auto;
+      padding: 16px;
+      text-align: center;
+    }
+    button {
+      padding: 12px 18px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    .small {
+      margin-top: 14px;
+      font-size: 13px;
+      opacity: .7;
+      word-break: break-all;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
 
-    <div class="small" id="debug"></div>
+<body>
 
-    <script>
-      const params = new URLSearchParams(window.location.search);
-      const code = params.get("code");
+  <h2>Opening SmartBudget…</h2>
+  <p>If the app didn’t open automatically, tap the button below.</p>
 
-      // ✅ CHANGE THIS to your real scheme/package
-      const scheme = "com.example.smartbudget";
-      const appUrl = code
-        ? `${scheme}://reset-password?code=${encodeURIComponent(code)}`
-        : `${scheme}://reset-password`;
+  <button id="openBtn">Open the app</button>
 
-      document.getElementById("debug").textContent = "Deep link: " + appUrl;
+  <div class="small" id="debug"></div>
 
-      document.getElementById("openBtn").addEventListener("click", () => {
-        window.location.href = appUrl;
-      });
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get("code");
 
-      // Try auto-open after render (so page isn't blank)
+    // IMPORTANT: Must match your Android applicationId
+    const scheme = "com.example.smartbudget";
+    const host = "reset-password";
+
+    // Custom scheme deep link
+    const appUrl = code
+      ? `${scheme}://${host}?code=${encodeURIComponent(code)}`
+      : `${scheme}://${host}`;
+
+    // Android intent fallback (stronger on Chrome/Android)
+    const intentUrl = code
+      ? `intent://${host}?code=${encodeURIComponent(code)}#Intent;scheme=${scheme};package=${scheme};end`
+      : `intent://${host}#Intent;scheme=${scheme};package=${scheme};end`;
+
+    const debug = document.getElementById("debug");
+
+    debug.textContent =
+      "Custom scheme:\n" + appUrl +
+      "\n\nAndroid intent:\n" + intentUrl;
+
+    function openApp() {
+      // Try normal scheme first
+      window.location.href = appUrl;
+
+      // If blocked, try Android intent fallback
       setTimeout(() => {
-        window.location.href = appUrl;
-      }, 400);
-    </script>
-  </body>
+        window.location.href = intentUrl;
+      }, 300);
+    }
+
+    document.getElementById("openBtn").addEventListener("click", openApp);
+
+    // Auto attempt after render
+    setTimeout(openApp, 500);
+  </script>
+
+</body>
 </html>
