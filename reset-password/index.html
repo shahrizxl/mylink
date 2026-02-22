@@ -1,51 +1,27 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Reset Password</title>
-  <style>
-    body { font-family: Arial, sans-serif; padding: 24px; line-height: 1.4; }
-    .box { max-width: 520px; margin: 0 auto; }
-    button {
-      width: 100%;
-      padding: 14px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    .hint { opacity: 0.8; margin-top: 12px; }
-    code { word-break: break-all; }
-  </style>
-</head>
-<body>
-  <div class="box">
-    <h2>Open SmartBudget to reset your password</h2>
-    <p>If the app didn’t open automatically, tap the button below.</p>
+<script>
+  const params = new URLSearchParams(window.location.search);
 
-    <button id="openBtn">Open the app</button>
+  // Supabase gives ?code=... (PKCE)
+  const code = params.get("code") || "";
 
-    <p class="hint">
-      Code (for debugging): <code id="codeText"></code>
-    </p>
-  </div>
+  // ✅ Add type=recovery (important)
+  const type = params.get("type") || "recovery";
 
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const code = params.get("code") || "";
-    document.getElementById("codeText").textContent = code || "(no code)";
+  document.getElementById("codeText").textContent = code || "(no code)";
 
-    // ✅ Put the code into the deep link so your app can read it if needed
-    // You can choose either query or path. Query is easier:
-    const deepLink = "com.example.smartbudget://reset-password?code=" + encodeURIComponent(code);
+  // ✅ Forward BOTH code + type to the app
+  const deepLink =
+    "com.example.smartbudget://reset-password?code=" +
+    encodeURIComponent(code) +
+    "&type=" +
+    encodeURIComponent(type);
 
-    function openApp() {
-      window.location.href = deepLink;
-    }
+  function openApp() {
+    window.location.href = deepLink;
+  }
 
-    document.getElementById("openBtn").addEventListener("click", openApp);
+  document.getElementById("openBtn").addEventListener("click", openApp);
 
-    // ✅ Auto-try once (browsers may block; button is backup)
-    setTimeout(openApp, 300);
-  </script>
-</body>
-</html>
+  // Auto-try once (button is backup)
+  setTimeout(openApp, 300);
+</script>
