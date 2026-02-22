@@ -29,7 +29,6 @@
 </head>
 
 <body>
-
   <h2>Opening SmartBudget…</h2>
   <p>If the app didn’t open automatically, tap the button below.</p>
 
@@ -41,31 +40,29 @@
     const params = new URLSearchParams(window.location.search);
     const code = params.get("code");
 
-    // IMPORTANT: Must match your Android applicationId
+    // MUST match Android applicationId
     const scheme = "com.example.smartbudget";
-    const host = "reset-password";
 
-    // Custom scheme deep link
+    // ✅ Use PATH style (most compatible)
     const appUrl = code
-      ? `${scheme}://${host}?code=${encodeURIComponent(code)}`
-      : `${scheme}://${host}`;
+      ? `${scheme}:///reset-password?code=${encodeURIComponent(code)}`
+      : `${scheme}:///reset-password`;
 
-    // Android intent fallback (stronger on Chrome/Android)
+    // ✅ Android intent fallback using PATH style too
     const intentUrl = code
-      ? `intent://${host}?code=${encodeURIComponent(code)}#Intent;scheme=${scheme};package=${scheme};end`
-      : `intent://${host}#Intent;scheme=${scheme};package=${scheme};end`;
+      ? `intent:///reset-password?code=${encodeURIComponent(code)}#Intent;scheme=${scheme};package=${scheme};end`
+      : `intent:///reset-password#Intent;scheme=${scheme};package=${scheme};end`;
 
     const debug = document.getElementById("debug");
-
     debug.textContent =
       "Custom scheme:\n" + appUrl +
       "\n\nAndroid intent:\n" + intentUrl;
 
     function openApp() {
-      // Try normal scheme first
+      // 1) Try custom scheme
       window.location.href = appUrl;
 
-      // If blocked, try Android intent fallback
+      // 2) Try Android intent fallback
       setTimeout(() => {
         window.location.href = intentUrl;
       }, 300);
@@ -76,6 +73,5 @@
     // Auto attempt after render
     setTimeout(openApp, 500);
   </script>
-
 </body>
 </html>
